@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+mypy = "*"
+pytest = "*"
+jupyter = "*"
+ipython = "*"
+autopep8 = "*"
+
+[packages]
+sklearn = "*"
+rdflib = "*"
+bidict = "*"
+numpy = "*"
+tqdm = "*"
+
+[requires]
+python_version = "3.7"
