@@ -120,30 +120,24 @@ class TransE(Model):
         obj_replaces = true_triples[pivot:len(true_triples)]
         entities = [i for i in range(len(self._kb._entity_dict))]
         logger.debug("negative sampling..., entity dict size: {}".format(len(entities)))
-        for triple in tqdm(subj_replaces, desc="subject replacing"):
+        subj_cands = np_random.randint(0, len(entities), len(subj_replaces))
+        obj_cands  = np_random.randint(0, len(entities), len(obj_replaces))
+        for triple, candidate in tqdm(zip(subj_replaces, subj_cands), total=len(subj_replaces), desc="subject replacing"):
+        #for triple in tqdm(subj_replaces, desc="subject replacing"):
         #for triple in subj_replaces:
-            entities.remove(triple[0])
-            """
-            candidate = random.sample(range(len(entities)), 1)[0]
-            candidate = entities[candidate]
-            """
-            np_random.shuffle(entities)
-            for i in entities:
-                if i != triple[0] and [i, triple[1], triple[2]] not in self._kb._id_triples:
-                    candidate = i
+            while True:
+                if candidate != triple[0] and [candidate, triple[1], triple[2]] not in self._kb._id_triples: # TODO: 高速にASKが走らないと難しい, KB側にFROSTもしくはrdflibを導入 & multithreadingしてやってみる
                     break
+                candidate = np_random.randint(0, len(entities))
             triple_pairs.append((triple, [candidate, triple[1], triple[2]]))
-            entities.append(triple[0])
-        for triple in tqdm(obj_replaces, desc="object replacing"):
+        for triple, candidate in tqdm(zip(obj_replaces, obj_cands), total=len(obj_replaces), desc="object replacing"):
+        #for triple in tqdm(obj_replaces, desc="object replacing"):
         #for triple in obj_replaces:
-            entities.remove(triple[2])
-            np_random.shuffle(entities)
-            for i in entities:
-                if i != triple[2] and [triple[0], triple[1], i] not in self._kb._id_triples:
-                    candidate = i
+            while True:
+                if candidate != triple[2] and [triple[0], triple[1], candidate] not in self._kb._id_triples:
                     break
+                candidate = np_random.randint(0, len(entities))
             triple_pairs.append((triple, [triple[0], triple[1], candidate]))
-            entities.append(triple[2])
         #logger.debug(self._kb.decode_triple(triple_pairs[0][0]), " -> ", self._kb.decode_triple(triple_pairs[0][1]))
         return triple_pairs
     
