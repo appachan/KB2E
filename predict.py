@@ -8,7 +8,9 @@ from KB2E.models import TransE
 logger = getLogger(__name__)
 
 if __name__ == "__main__":
-    with open('models/trans_e.pickle', 'rb') as f:
+    model_path = 'models/trans_e_20190619.pickle'
+    #model_path = "models/freebase_mtr100_mte100.pickle"
+    with open(model_path, 'rb') as f:
         trans_e = pickle.load(f)
         #subj="/m/027rn"
         #pred="/location/country/form_of_government"
