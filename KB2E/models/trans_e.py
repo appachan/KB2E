@@ -53,7 +53,6 @@ class TransE(Model):
         updated = 100.0
         logger.debug("start training, mini batch size: {}/{}".format(batch_size, len(kb._id_triples)))
         for _ in range(1000):
-            logger.debug("start mini batch")
             entities = numpy.apply_along_axis(l2_normalize, axis=1, arr=entities) # L2-normalize
             S_batch = [i for i in range(len(kb._id_triples))]
             np_random.shuffle(S_batch)
@@ -68,7 +67,6 @@ class TransE(Model):
             T_batch = self._make_triple_pairs(S_batch)
             """
             T_batch = [T[i] for i in S_batch]
-            logger.debug("start update")
             updates = list()
             for (triple, corrupted_triple) in tqdm(T_batch, desc="mini batch execution, size: {}".format(batch_size)):
             #for (triple, corrupted_triple) in T_batch:
@@ -86,11 +84,11 @@ class TransE(Model):
                     entities[h_]   = entities[h_]   + corrupted_triple_update
                     entities[t_]   = entities[t_]   - corrupted_triple_update
                     relations[ell] = relations[ell] + corrupted_triple_update
-                #logger.debug("update: {}".format(update))
-                updates.append(max([0, update]))
+                updates.append(max([0, update])) # 勾配の更新が発生する場合のみカウント
+
             updates = numpy.array(updates)
             updates = numpy.sum(updates) / len(updates)
-            logger.info(updates)
+            logger.debug(updates) # ミニバッチ内の各サンプルにおける平均のupdate
             if updated < updates:
                 break
             updated = updates
