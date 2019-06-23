@@ -69,13 +69,13 @@ class KnowledgeGraph():
                 ])
         else:
             raise NotImplementedError("only *.tsv can be accepted.")
-        logger.debug("size of entity_dict: {}, s_dict: {}, p_dict: {}, o_dict: {}".format(
+        logger.info("size of entity_dict: {}, s_dict: {}, p_dict: {}, o_dict: {}".format(
             len(self._entity_dict),
             len(self._subject_dict),
             len(self._predicate_dict),
             len(self._object_dict)
         ))
-        logger.debug("size of triples: {}".format(len(self._id_triples)))
+        logger.info("size of triples: {}".format(len(self._id_triples)))
 
     def decode_triple(self, id_triple):
         return (
