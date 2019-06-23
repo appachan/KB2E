@@ -49,10 +49,9 @@ class TransE(Model):
 
         # Training
         batch_size = int(len(kb._id_triples)*self._batch_size) # < |FB-train-data| = 483,142
-        #while True:
         updated = numpy.finfo(float).max
         logger.debug("start training, mini batch size: {}/{}".format(batch_size, len(kb._id_triples)))
-        for _ in range(1000):
+        while True:
             entities = numpy.apply_along_axis(l2_normalize, axis=1, arr=entities) # L2-normalize
             S_batch = [i for i in range(len(kb._id_triples))]
             np_random.shuffle(S_batch)
