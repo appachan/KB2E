@@ -14,15 +14,17 @@ logger = getLogger(__name__)
 
 
 class TransE(Model):
-    def __init__(self, ganma:float=2, k:int=50, lmd:float=0.01) -> None:
+    def __init__(self, ganma:float=2, k:int=50, lmd:float=0.01, batch_size:float=0.2) -> None:
         """TranE: translation-based model forcuses on a query (h, l, ?t).
         :param ganma: margin
         :param k: embeddings dim
-        :param lmd: update parameter"""
-        logger.debug("params: ganma={}, k={}".format(ganma, k))
+        :param lmd: update parameter
+        :param batch_size: mini batch size, domain: (0, 1)"""
+        logger.info("params: ganma={}, k={}, lambda={}, mini batch size: {}".format(ganma, k, lmd, batch_size))
         self._ganma: float = ganma
         self._k: int = k
         self._lambda: float = lmd
+        self._batch_size = batch_size
         self._kb = None
         super().__init__()
 
@@ -40,13 +42,16 @@ class TransE(Model):
         relations = numpy.array([np_random.uniform(low=-6/sqrt(k), high=6/sqrt(k), size=k) for _ in kb._relation_dict]) # U(-6/k^-2, 6/k^-2)
         relations = numpy.apply_along_axis(l2_normalize, axis=1, arr=relations) # L2-normalize
         entities = numpy.array([np_random.uniform(low=-6/sqrt(k), high=6/sqrt(k), size=k) for _ in kb._entity_dict]) # U(-6/k^-2, 6/k^-2)
+
         kb._id_triples = kb._id_triples[:int(len(kb._id_triples))]
         T = self._make_triple_pairs(kb._id_triples) # 事前にnegative samplesを生成
+        self._T = T
 
         # Training
-        batch_size = int(len(kb._id_triples)/5) # < |FB-train-data| = 483,142
+        batch_size = int(len(kb._id_triples)*self._batch_size) # < |FB-train-data| = 483,142
         #while True:
         updated = 100.0
+        logger.debug("start training, mini batch size: {}/{}".format(batch_size, len(kb._id_triples)))
         for _ in range(1000):
             logger.debug("start mini batch")
             entities = numpy.apply_along_axis(l2_normalize, axis=1, arr=entities) # L2-normalize
